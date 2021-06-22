@@ -46,11 +46,10 @@ class Device {
              std::vector<char>* model_buffer);         // NOLINT
 
  private:
-
-  bool runtime_inited_{false};
-  static int device_create_count_;
+  static int device_reference_count_;
   static std::mutex device_mutex_;
 };
+
 }  // namespace huawei_ascend_npu
 }  // namespace lite
 }  // namespace paddle

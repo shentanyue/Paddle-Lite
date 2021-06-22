@@ -57,4 +57,12 @@ USE_SUBGRAPH_BRIDGE(cast, kHuaweiAscendNPU);
 USE_SUBGRAPH_BRIDGE(scale, kHuaweiAscendNPU);
 USE_SUBGRAPH_BRIDGE(slice, kHuaweiAscendNPU);
 USE_SUBGRAPH_BRIDGE(gather, kHuaweiAscendNPU);
+<<<<<<< HEAD
 USE_SUBGRAPH_BRIDGE(prior_box, kHuaweiAscendNPU);
+=======
+// USE_SUBGRAPH_BRIDGE(arg_max, kHuaweiAscendNPU);
+USE_SUBGRAPH_BRIDGE(unsqueeze, kHuaweiAscendNPU);
+USE_SUBGRAPH_BRIDGE(unsqueeze2, kHuaweiAscendNPU);
+USE_SUBGRAPH_BRIDGE(shape, kHuaweiAscendNPU);
+USE_SUBGRAPH_BRIDGE(reduce_mean, kHuaweiAscendNPU);
+// USE_SUBGRAPH_BRIDGE(prior_box, kHuaweiAscendNPU);
