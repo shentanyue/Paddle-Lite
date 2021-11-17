@@ -170,10 +170,6 @@ if (LITE_WITH_NPU)
     add_definitions("-DLITE_WITH_NPU")
 endif()
 
-if (LITE_WITH_APU)
-    add_definitions("-DLITE_WITH_APU")
-endif()
-
 if (LITE_WITH_RKNPU)
     add_definitions("-DLITE_WITH_RKNPU")
 endif()
@@ -212,10 +208,6 @@ endif()
 
 if (LITE_WITH_MLU)
 add_definitions("-DLITE_WITH_MLU")
-endif()
-
-if (LITE_WITH_HUAWEI_ASCEND_NPU)
-add_definitions("-DLITE_WITH_HUAWEI_ASCEND_NPU")
 endif()
 
 if (LITE_WITH_NNADAPTER)
