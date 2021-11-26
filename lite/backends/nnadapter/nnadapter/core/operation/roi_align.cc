@@ -31,9 +31,9 @@ int PrepareRoiAlign(hal::Operation* operation) {
   auto& output_type = output_operand->type;
   CopyOperandTypeExceptQuantParams(&output_type, input_type);
 
-  auto infer_output_shape = [&](int32_t* input_dimensions_data,
-															int32_t* rois_dimensions_data,
-                              int32_t* output_dimensions_data) {
+  auto infer_output_shape = [&](int32_t* input_dimensions_data, 
+                                int32_t* rois_dimensions_data,
+                                int32_t* output_dimensions_data) {
     output_dimensions_data[0] = rois_dimensions_data[0];
     output_dimensions_data[1] = input_dimensions_data[1];
 		output_dimensions_data[2] = output_height;
@@ -41,11 +41,11 @@ int PrepareRoiAlign(hal::Operation* operation) {
   };
 
   infer_output_shape(input_type.dimensions.data,
-										rois_type.dimensions.data,
+                    rois_type.dimensions.data,
                     output_type.dimensions.data);
   for (uint32_t i = 0; i < input_type.dimensions.dynamic_count; i++) {
     infer_output_shape(input_type.dimensions.dynamic_data[i],
-											 rois_type.dimensions.dynamic_data[i],
+                       rois_type.dimensions.dynamic_data[i],
                        output_type.dimensions.dynamic_data[i]);
   }
 
