@@ -291,6 +291,8 @@ NNADAPTER_EXPORT std::string Visualize(hal::Model* model) {
       case NNADAPTER_ABS:
       case NNADAPTER_EXP:
       case NNADAPTER_SWISH:
+      case NNADAPTER_FLOOR:
+      case NNADAPTER_NOT:
         input_args = {"input"};
         output_args = {"output"};
         break;
@@ -316,6 +318,7 @@ NNADAPTER_EXPORT std::string Visualize(hal::Model* model) {
         output_args = {"output"};
         break;
       case NNADAPTER_REDUCE_MEAN:
+      case NNADAPTER_REDUCE_SUM:
         input_args = {"input", "axes", "keep_dim"};
         output_args = {"output"};
         break;
@@ -447,6 +450,7 @@ NNADAPTER_EXPORT std::string Visualize(hal::Model* model) {
       case NNADAPTER_GREATER_EQUAL:
       case NNADAPTER_LESS:
       case NNADAPTER_LESS_EQUAL:
+      case NNADAPTER_AND:
         input_args = {"input0", "input1"};
         output_args = {"output"};
         break;
@@ -560,6 +564,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(ADAPTIVE_AVERAGE_POOL_2D);
     NNADAPTER_TYPE_TO_STRING(ADAPTIVE_MAX_POOL_2D);
     NNADAPTER_TYPE_TO_STRING(ADD);
+    NNADAPTER_TYPE_TO_STRING(AND);
     NNADAPTER_TYPE_TO_STRING(ARG_MAX);
     NNADAPTER_TYPE_TO_STRING(ARG_MIN);
     NNADAPTER_TYPE_TO_STRING(ASSIGN);
@@ -579,6 +584,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(EXPAND);
     NNADAPTER_TYPE_TO_STRING(FILL);
     NNADAPTER_TYPE_TO_STRING(FLATTEN);
+    NNADAPTER_TYPE_TO_STRING(FLOOR);
     NNADAPTER_TYPE_TO_STRING(FULLY_CONNECTED);
     NNADAPTER_TYPE_TO_STRING(GATHER);
     NNADAPTER_TYPE_TO_STRING(GELU);
@@ -598,6 +604,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(MAX_POOL_2D);
     NNADAPTER_TYPE_TO_STRING(MIN);
     NNADAPTER_TYPE_TO_STRING(MUL);
+    NNADAPTER_TYPE_TO_STRING(NOT);
     NNADAPTER_TYPE_TO_STRING(NOT_EQUAL);
     NNADAPTER_TYPE_TO_STRING(PAD);
     NNADAPTER_TYPE_TO_STRING(POW);
@@ -607,6 +614,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(RELU6);
     NNADAPTER_TYPE_TO_STRING(RANGE);
     NNADAPTER_TYPE_TO_STRING(REDUCE_MEAN);
+    NNADAPTER_TYPE_TO_STRING(REDUCE_SUM);
     NNADAPTER_TYPE_TO_STRING(RESHAPE);
     NNADAPTER_TYPE_TO_STRING(RESIZE_NEAREST);
     NNADAPTER_TYPE_TO_STRING(RESIZE_LINEAR);

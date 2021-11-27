@@ -22,7 +22,7 @@
 namespace nnadapter {
 namespace operation {
 
-int PrepareBinaryLogicalOp(hal::Operation* operation) {
+int PrepareUnaryLogicalOp(hal::Operation* operation) {
   UNARY_LOGICAL_OPERATION_EXTRACT_INPUTS_OUTPUTS
 
   // Infer the shape and type of output operands
