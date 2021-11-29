@@ -292,6 +292,7 @@ NNADAPTER_EXPORT std::string Visualize(hal::Model* model) {
       case NNADAPTER_EXP:
       case NNADAPTER_SWISH:
       case NNADAPTER_FLOOR:
+      case NNADAPTER_SQUARE:
       case NNADAPTER_NOT:
         input_args = {"input"};
         output_args = {"output"};
@@ -454,6 +455,16 @@ NNADAPTER_EXPORT std::string Visualize(hal::Model* model) {
         input_args = {"input0", "input1"};
         output_args = {"output"};
         break;
+      case NNADAPTER_MESHGRID:
+        input_args.resize(input_count);
+        for (size_t i = 0; i < input_count; i++) {
+          input_args[i] = string_format("input%d", i);
+        }
+        output_args.resize(output_count);
+        for (size_t i = 0; i < output_count; i++) {
+          output_args[i] = string_format("output%d", i);
+        }
+        break;
       default:
         NNADAPTER_LOG(FATAL) << "unsupported op: "
                              << static_cast<int>(operation->type);
@@ -602,6 +613,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(MAT_MUL);
     NNADAPTER_TYPE_TO_STRING(MAX);
     NNADAPTER_TYPE_TO_STRING(MAX_POOL_2D);
+    NNADAPTER_TYPE_TO_STRING(MESHGRID);
     NNADAPTER_TYPE_TO_STRING(MIN);
     NNADAPTER_TYPE_TO_STRING(MUL);
     NNADAPTER_TYPE_TO_STRING(NOT);
@@ -624,6 +636,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(STACK);
     NNADAPTER_TYPE_TO_STRING(SOFTMAX);
     NNADAPTER_TYPE_TO_STRING(SPLIT);
+    NNADAPTER_TYPE_TO_STRING(SQUARE);
     NNADAPTER_TYPE_TO_STRING(SQUEEZE);
     NNADAPTER_TYPE_TO_STRING(SUB);
     NNADAPTER_TYPE_TO_STRING(SWISH);
