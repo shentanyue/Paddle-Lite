@@ -26,7 +26,6 @@ int PrepareSum(hal::Operation* operation) {
   SUM_OPERATION_EXTRACT_INPUTS_OUTPUTS
 
   // Infer the shape and type of output operands
-  // TODO(shentanyue) add broadcast logic
   CopyOperandTypeExceptQuantParams(&output_operand->type, input_operands[0]->type);
   NNADAPTER_VLOG(5) << "output: " << OperandToString(output_operand);
   return NNADAPTER_NO_ERROR;

@@ -465,6 +465,36 @@ NNADAPTER_EXPORT std::string Visualize(hal::Model* model) {
           output_args[i] = string_format("output%d", i);
         }
         break;
+      case NNADAPTER_TILE:
+        input_args = {"input", "repeats"};
+        output_args = {"output"};
+        break;
+      case NNADAPTER_SUM:
+        input_args.resize(input_count);
+        for (size_t i = 0; i < input_count; i++) {
+          input_args[i] = string_format("input%d", i);
+        }
+        output_args = {"output"};
+        break;
+      case NNADAPTER_GRID_SAMPLE:
+        input_args = {"input",
+                      "grid",
+                      "aligned_corners",
+                      "mode",
+                      "pad_pad"};
+        output_args = {"output"};
+        break;
+      case NNADAPTER_ROI_ALIGN:
+        input_args = {"input",
+                      "rois",
+                      "batch_indices",
+                      "output_height",
+                      "output_width",
+                      "sampling_ratio",
+                      "spatial_scale",
+                      "aligned"};
+        output_args = {"output"};
+        break;
       default:
         NNADAPTER_LOG(FATAL) << "unsupported op: "
                              << static_cast<int>(operation->type);
@@ -601,6 +631,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(GELU);
     NNADAPTER_TYPE_TO_STRING(GREATER);
     NNADAPTER_TYPE_TO_STRING(GREATER_EQUAL);
+    NNADAPTER_TYPE_TO_STRING(GRID_SAMPLE);
     NNADAPTER_TYPE_TO_STRING(HARD_SIGMOID);
     NNADAPTER_TYPE_TO_STRING(HARD_SWISH);
     NNADAPTER_TYPE_TO_STRING(INSTANCE_NORMALIZATION);
@@ -630,6 +661,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(RESHAPE);
     NNADAPTER_TYPE_TO_STRING(RESIZE_NEAREST);
     NNADAPTER_TYPE_TO_STRING(RESIZE_LINEAR);
+    NNADAPTER_TYPE_TO_STRING(ROI_ALIGN);
     NNADAPTER_TYPE_TO_STRING(SHAPE);
     NNADAPTER_TYPE_TO_STRING(SIGMOID);
     NNADAPTER_TYPE_TO_STRING(SLICE);
@@ -639,8 +671,10 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(SQUARE);
     NNADAPTER_TYPE_TO_STRING(SQUEEZE);
     NNADAPTER_TYPE_TO_STRING(SUB);
+    NNADAPTER_TYPE_TO_STRING(SUM);
     NNADAPTER_TYPE_TO_STRING(SWISH);
     NNADAPTER_TYPE_TO_STRING(TANH);
+    NNADAPTER_TYPE_TO_STRING(TILE);
     NNADAPTER_TYPE_TO_STRING(TOP_K);
     NNADAPTER_TYPE_TO_STRING(TRANSPOSE);
     NNADAPTER_TYPE_TO_STRING(UNSQUEEZE);

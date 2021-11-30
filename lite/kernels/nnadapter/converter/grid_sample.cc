@@ -38,18 +38,19 @@ int ConvertGridSample(Converter* converter, OpInfo* op, Scope* scope) {
   }
   auto grid_operand = converter->AddInputOperand(scope, grid_name, {}, grid_scales);
 
-  // Align_corners operand
+  // Align corners operand
   bool align_corners = op->HasAttr("align_corners") ? op->GetAttr<bool>("align_corners") : true;
   auto align_corners_operand = converter->AddConstantOperand(align_corners);
 
   // Mode opearnd
   std::string mode = op->HasAttr("mode") ? op->GetAttr<std::string>("mode") : "bilinear";
-  auto mode_operand = converter->AddConstantOperand(mode);
+  NNAdapterInterpolateModeCode interpolate_code = ConvertInterpolateModeToNNInterpolateModeCode(padding_mode);
+  auto mode_operand = converter->AddConstantOperand(interpolate_code);
 
   // Pad mode operand
   std::string padding_mode = op->HasAttr("padding_mode") ? op->GetAttr<std::string>("padding_mode") : "zeros";
-  NNAdapterPadModeCode mode_code = ConvertPadModeToNNPadModeCode(padding_mode);
-  auto pad_mode_operand = converter->AddConstantOperand(mode_code);
+  NNAdapterPadModeCode pad_mode_code = ConvertPadModeToNNPadModeCode(padding_mode);
+  auto pad_mode_operand = converter->AddConstantOperand(pad_mode_code);
 
   // Output operand
   auto output_name = op->Output("Output").front();

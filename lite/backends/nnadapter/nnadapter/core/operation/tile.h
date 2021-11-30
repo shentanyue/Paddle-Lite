@@ -17,35 +17,33 @@
 namespace nnadapter {
 namespace operation {
 
-#define TILE_OPERATION_EXTRACT_INPUTS_OUTPUTS                                 \
-  auto& input_operands = operation->input_operands;                           \
-  auto& output_operands = operation->output_operands;                         \
-  auto input_count = input_operands.size();                                   \
-  auto output_count = output_operands.size();                                 \
-  NNADAPTER_CHECK_EQ(input_count, 2);                                         \
-  NNADAPTER_CHECK_EQ(output_count, 1);                                        \
-  /* Input */                                                                 \
-  auto input_operand = input_operands[0];                                     \
-  NNADAPTER_VLOG(5) << "input: " << OperandToString(input_operand);           \
-  /* Repeat times */                                                          \
-  auto repeat_times_operand = input_operands[1];                              \
-  NNADAPTER_VLOG(5) << "repeat_times: "                                       \
-                    << OperandToString(repeat_times_operand);                 \
-  uint32_t repeat_times_count;                                                     \
-  int32_t* repeat_times_data;                                                      \
-  std::vector<int32_t> repeat_times;                                          \
-  if (repeat_times_operand) {                                                 \
-    repeat_times_count = repeat_times_operand->length / sizeof(int32_t); \
-    repeat_times_data =                                                  \
-        reinterpret_cast<int32_t*>(repeat_times_operand->buffer);             \
-    repeat_times = std::vector<int32_t>(                                      \
-        repeat_times_data, repeat_times_data + repeat_times_count);           \
-  }                                                                           \
-  for (size_t i = 0; i < repeat_times.size(); i++) {                          \
-    NNADAPTER_VLOG(5) << "repeat_times[" << i << "]: " << repeat_times[i];    \
-  }                                                                           \
-  /* Output */                                                                \
-  auto output_operand = output_operands[0];                                   \
+#define TILE_OPERATION_EXTRACT_INPUTS_OUTPUTS                             \
+  auto& input_operands = operation->input_operands;                       \
+  auto& output_operands = operation->output_operands;                     \
+  auto input_count = input_operands.size();                               \
+  auto output_count = output_operands.size();                             \
+  NNADAPTER_CHECK_EQ(input_count, 2);                                     \
+  NNADAPTER_CHECK_EQ(output_count, 1);                                    \
+  /* Input */                                                             \
+  auto input_operand = input_operands[0];                                 \
+  NNADAPTER_VLOG(5) << "input: " << OperandToString(input_operand);       \
+  /* Repeat */                                                            \
+  auto repeats_operand = input_operands[1];                               \
+  NNADAPTER_VLOG(5) << "repeats: " << OperandToString(repeats_operand);   \
+  uint32_t repeats_count;                                                 \
+  int32_t* repeats_data;                                                  \
+  std::vector<int32_t> repeats;                                           \
+  if (IsConstantOperand(repeats_operand)) {                                                  \
+    repeats_count = repeats_operand->length / sizeof(int32_t);            \
+    repeats_data = reinterpret_cast<int32_t*>(repeats_operand->buffer);   \
+    repeats =                                                             \
+        std::vector<int32_t>(repeats_data, repeats_data + repeats_count); \
+  }                                                                       \
+  for (size_t i = 0; i < repeats.size(); i++) {                           \
+    NNADAPTER_VLOG(5) << "repeats[" << i << "]: " << repeats[i];          \
+  }                                                                       \
+  /* Output */                                                            \
+  auto output_operand = output_operands[0];                               \
   NNADAPTER_VLOG(5) << "output: " << OperandToString(output_operand);
 
 }  // namespace operation

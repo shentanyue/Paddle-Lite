@@ -576,11 +576,20 @@ NNAdapterPadModeCode ConvertPadModeToNNPadModeCode(std::string mode) {
   if (mode == "replicate") {
     return NNADAPTER_PAD_MODE_REPLICATE;
   }
-  if (mode == "edge") {
+  if (mode == "edge" || model == "border") {
     return NNADAPTER_PAD_MODE_EDGE;
   }
   LOG(FATAL) << "Unsupported mode type: " << mode;
-  return NNADAPTER_PAD_MODE_NONE;
+}
+
+NNAdapterInterpolateModeCode ConvertInterpolateModeToNNInterpolateModeCode(std::string mode) {
+  if (mode == "bilinear") {
+    return NNADAPTER_INTERPOLATE_MODE_BILINEAR;
+  }
+  if (mode == "nearest") {
+    return NNADAPTER_INTERPOLATE_MODE_NEAREST;
+  }
+  LOG(FATAL) << "Unsupported mode type: " << mode;
 }
 
 template <>

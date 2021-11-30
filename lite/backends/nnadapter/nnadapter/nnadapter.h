@@ -1886,6 +1886,18 @@ typedef enum {
   NNADAPTER_PAD_MODE_EDGE = 4,
 } NNAdapterPadModeCode;
 
+/**
+ * Interpolate Mode
+ *
+ * Available since version 1.
+ */
+typedef enum {
+  /** No pad mode. */
+  NNADAPTER_INTERPOLATE_MODE_NONE = 0,
+  NNADAPTER_INTERPOLATE_MODE_BILINEAR = 1,
+  NNADAPTER_INTERPOLATE_MODE_NEAREST = 2,
+} NNAdapterInterpolateModeCode;
+
 typedef int32_t NNAdapterDeviceType;
 
 /**

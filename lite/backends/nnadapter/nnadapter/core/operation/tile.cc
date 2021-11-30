@@ -30,42 +30,41 @@ int PrepareTile(hal::Operation* operation) {
   auto& output_type = output_operand->type;
   CopyOperandTypeExceptQuantParams(&output_type, input_type);
 
-  auto& repeat_times_type = repeat_times_operand->type;
-  if (repeat_times_type.lifetime == NNADAPTER_TEMPORARY_SHAPE) {
-    auto repeat_times_operand_dimension =
+  auto& repeats_type = repeats_operand->type;
+  if (repeats_type.lifetime == NNADAPTER_TEMPORARY_SHAPE) {
+    auto repeats_operand_dimension =
         *reinterpret_cast<NNAdapterOperandDimensionType*>(
-            repeat_times_operand->buffer);
-    repeat_times_count = repeat_times_operand_dimension.count;
-    repeat_times_data = repeat_times_operand_dimension.data;
-    repeat_times =  std::vector<int32_t>(repeat_times_data, repeat_times_count + repeat_times_data);
-  } else if (!IsConstantOperand(repeat_times_operand)) {
-    NNADAPTER_LOG(FATAL) << "Unsupported repeat_times lifetime: "
-                         << static_cast<int32_t>(repeat_times_type.lifetime);
+            repeats_operand->buffer);
+    repeats_count = repeats_operand_dimension.count;
+    repeats_data = repeats_operand_dimension.data;
+    repeats =  std::vector<int32_t>(repeats_data, repeats_count + repeats_data);
+  } else if (!IsConstantOperand(repeats_operand)) {
+    NNADAPTER_LOG(FATAL) << "Unsupported repeats lifetime: "
+                         << static_cast<int32_t>(repeats_type.lifetime);
     return NNADAPTER_INVALID_PARAMETER;
   }
 
   auto infer_output_shape = [&](int32_t* input_dimensions_data,
                               uint32_t input_dimensions_count,
-                              int32_t* output_dimensions_data) {
-                              
-    // broadcast for vec_in_dims.size() equal to repeat_times.size()
+                              int32_t* output_dimensions_data) {           
+    // broadcast for vec_in_dims.size() equal to repeats.size()
     std::vector<int> input_dims_vec;
     for (uint32_t i = 0; i < input_dimensions_count; i++) {
       input_dims_vec.push_back(input_dimensions_data[i]);
     }
 
-    if (repeat_times_count < input_dimensions_count) {
-      int diff = input_dimensions_count - repeat_times_count;
-      repeat_times.insert(repeat_times.begin(), diff, 1);
+    if (repeats_count < input_dimensions_count) {
+      int diff = input_dimensions_count - repeats_count;
+      repeats.insert(repeats.begin(), diff, 1);
       output_type.dimensions.count = input_dimensions_count;
     } else {
-      int diff = repeat_times_count - input_dimensions_count;
+      int diff = repeats_count - input_dimensions_count;
       input_dims_vec.insert(input_dims_vec.begin(), diff, 1);
-      output_type.dimensions.count = repeat_times_count;
+      output_type.dimensions.count = repeats_count;
     }
 
-    for (uint32_t i = 0; i < input_dimensions_count; i++) {
-      output_dimensions_data[i] = input_dims_vec[i] * repeat_times_data[i];
+    for (uint32_t i = 0; i < output_type.dimensions.count; i++) {
+      output_dimensions_data[i] = input_dims_vec[i] * repeats_data[i];
     }
   };
 
