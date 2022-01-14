@@ -134,12 +134,11 @@ std::unique_ptr<RuntimeProgram> RunDefaultOptimizer(
   Optimizer optim(valid_places, kernel_pick_factor);
 
   std::vector<std::string> passes_local{
-      {"lite_quant_dequant_fuse_pass",              //
-       "weight_quantization_preprocess_pass",       //
-       "op_transformation_pass",                    //
-       "remove_scale1_pass",                        //
-       "adaptive_1x1_pool2d_convert_global_pass",   //
-       "lite_unsqueeze2_pad3d_squeeze2_fuse_pass",  //
+      {"lite_quant_dequant_fuse_pass",             //
+       "weight_quantization_preprocess_pass",      //
+       "op_transformation_pass",                   //
+       "remove_scale1_pass",                       //
+       "adaptive_1x1_pool2d_convert_global_pass",  //
 
        "lite_conv_elementwise_fuse_pass",  // conv-elemwise-bn
        "lite_conv_bn_fuse_pass",           //
@@ -177,6 +176,7 @@ std::unique_ptr<RuntimeProgram> RunDefaultOptimizer(
        "range_calc_offline_pass",
        "p_norm_fill_constant_max_div_fuse_pass",
        "fill_constant_calc_offline_pass",
+       "scale_calc_offline_pass",
        "unsqueeze_calc_offline_pass",
        "identity_dropout_eliminate_pass",
        "sparse_conv_detect_pass",

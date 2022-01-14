@@ -57,7 +57,8 @@ bool LookupTableV2OpLite::AttachImpl(const cpp::OpDesc &op_desc,
   param_.Out = scope->FindMutableTensor(out);
 
   param_.padding_idx = op_desc.GetAttr<int64_t>("padding_idx");
-
+  // param_.padding_idx = -1;
+  // LOG(FATAL) << "DEBUG: " << op_desc.GetAttr<int64_t>("padding_idx");
   return true;
 }
 

@@ -55,6 +55,7 @@ int ConvertConv2dTranspose(Converter* converter, OpInfo* op, Scope* scope) {
   } else {
     // Dummy bias
     int groups = op->GetAttr<int>("groups");
+    CHECK(scope->FindTensor(filter_name)->persistable());
     int output_channel_size =
         scope->FindTensor(filter_name)->dims()[1] * groups;
     std::vector<float> bias(output_channel_size, 0.f);
@@ -104,11 +105,10 @@ int ConvertConv2dTranspose(Converter* converter, OpInfo* op, Scope* scope) {
   NNAdapterOperand* output_shape_operand = nullptr;
   if (op->HasAttr("output_size")) {
     std::vector<int> output_size = op->GetAttr<std::vector<int>>("output_size");
-    if (output_size.size() != 0) {
+    if (!output_size.empty()) {
       output_shape_operand = converter->AddConstantOperand(output_size);
     }
   }
-
   // Fuse code operand
   bool with_act =
       op->HasAttr("with_act") ? op->GetAttr<bool>("with_act") : false;
