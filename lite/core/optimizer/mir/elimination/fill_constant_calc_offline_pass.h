@@ -27,6 +27,8 @@ namespace paddle {
 namespace lite {
 namespace mir {
 
+static int32_t count;
+
 class FillConstantCalcOfflinePass : public mir::StmtPass {
  public:
   void Apply(const std::unique_ptr<SSAGraph>& graph) override;

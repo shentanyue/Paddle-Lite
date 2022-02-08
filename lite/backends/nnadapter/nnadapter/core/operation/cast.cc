@@ -18,6 +18,7 @@
 #include "utility/logging.h"
 #include "utility/modeling.h"
 #include "utility/utility.h"
+#include "utility/hints.h"
 
 namespace nnadapter {
 namespace operation {
@@ -28,6 +29,7 @@ int PrepareCast(hal::Operation* operation) {
   // Infer the shape and type of output operands
   CopyOperandTypeExceptQuantParams(&output_operand->type, input_operand->type);
   output_operand->type.precision = dtype;
+  SetTemporaryShape(output_operand, input_operand->type.dimensions);
   NNADAPTER_VLOG(5) << "output: " << OperandToString(output_operand);
   return NNADAPTER_NO_ERROR;
 }

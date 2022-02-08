@@ -24,7 +24,6 @@ void RangeCompute<T, PType>::Run() {
   auto& param = this->template Param<operators::RangeParam>();
   T start = (param.Start->template data<T>()[0]);
   T step = (param.Step->template data<T>()[0]);
-
   T* out_data = param.Out->template mutable_data<T>();
   T value = start;
   for (int i = 0; i < param.Out->dims().production(); ++i) {
@@ -98,6 +97,27 @@ REGISTER_LITE_KERNEL(range, kHost, kInt32, kAny, range_int32, def)
     .BindOutput("Out",
                 {LiteType::GetTensorTy(TARGET(kHost),
                                        PRECISION(kInt32),
+                                       DATALAYOUT(kAny))})
+    .Finalize();
+
+using range_bool =
+    paddle::lite::kernels::host::RangeCompute<bool, PRECISION(kBool)>;
+REGISTER_LITE_KERNEL(range, kHost, kBool, kAny, range_bool, def)
+    .BindInput("Start",
+               {LiteType::GetTensorTy(TARGET(kHost),
+                                      PRECISION(kBool),
+                                      DATALAYOUT(kAny))})
+    .BindInput("End",
+               {LiteType::GetTensorTy(TARGET(kHost),
+                                      PRECISION(kBool),
+                                      DATALAYOUT(kAny))})
+    .BindInput("Step",
+               {LiteType::GetTensorTy(TARGET(kHost),
+                                      PRECISION(kBool),
+                                      DATALAYOUT(kAny))})
+    .BindOutput("Out",
+                {LiteType::GetTensorTy(TARGET(kHost),
+                                       PRECISION(kBool),
                                        DATALAYOUT(kAny))})
     .Finalize();
 
