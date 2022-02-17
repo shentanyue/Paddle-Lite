@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #include "lite/core/optimizer/optimizer.h"
+
 #include <fstream>
+
 #include "lite/core/optimizer/mir/static_kernel_pick_pass.h"
 #include "lite/core/optimizer/mir/type_target_cast_pass.h"
 #include "lite/model_parser/model_parser.h"
@@ -116,7 +118,17 @@ void Optimizer::ApplyPasses(
       if (kSubblockUnsupportedPasses.count(pass->name())) {
         pass->Apply((*graphes)[kRootBlockIdx]);
       } else {
+        int count = 0;
+        LOG(INFO) << "[DEBUG]: graph_size" << graphes->size();
         for (auto& graph : *graphes) {
+          count += 1;
+          if (count > 1 && pass->name() == "fill_constant_calc_offline_pass" ||
+              pass->name() == "scale_calc_offline_pass" ||
+              pass->name() == "unsqueeze_calc_offline_pass" ||
+              pass->name() == "range_calc_offline_pass" ||
+              pass->name() == "assign_value_calc_offline_pass") {
+            continue;
+          }
           pass->Apply(graph);
         }
       }
@@ -141,10 +153,12 @@ std::unique_ptr<RuntimeProgram> RunDefaultOptimizer(
        "assign_value_calc_offline_pass",
        "p_norm_fill_constant_max_div_fuse_pass",
        "fill_constant_calc_offline_pass",
+       "control_flow_op_shared_inputs_and_outputs_place_sync_pass",
        "range_calc_offline_pass",
        "scale_calc_offline_pass",
        "unsqueeze_calc_offline_pass",
        "ssd_boxes_calc_offline_pass",
+       "control_flow_op_shared_inputs_and_outputs_place_sync_pass",
        "adaptive_1x1_pool2d_convert_global_pass",  //
        "lite_unsqueeze2_pad3d_squeeze2_fuse_pass",
        "lite_conv_elementwise_fuse_pass",  // conv-elemwise-bn

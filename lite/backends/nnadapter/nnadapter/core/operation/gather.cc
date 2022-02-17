@@ -43,6 +43,22 @@ int PrepareGather(hal::Operation* operation) {
     memcpy(out_dims_data + axis + ids_count,
            in_dims_data + axis + 1,
            sizeof(int32_t) * (in_count - axis));
+    // std::vector<int32_t> out_dim_vec;
+    // for (int i = 0; i < axis; i++) {
+    //   out_dim_vec.push_back(in_dims_data[i]);
+    // }
+    // int32_t ids_numel = 1;
+    // for (int i = 0; i < ids_count; i++) {
+    //   ids_numel *= ids_dims_data[i];
+    // }
+    // out_dim_vec.push_back(ids_numel);
+    // for (int i = axis + 1; i < in_count; i++) {
+    //   out_dim_vec.push_back(in_dims_data[i]);
+    // }
+    // out_dims.count = out_dim_vec.size();
+    // for (int i = 0; i < out_dim_vec.size(); i++) {
+    //   out_dims_data[i] = out_dim_vec[i];
+    // }
   };
 
   infer_output_shape(in_dims.data, ids_dims.data, out_dims.data);

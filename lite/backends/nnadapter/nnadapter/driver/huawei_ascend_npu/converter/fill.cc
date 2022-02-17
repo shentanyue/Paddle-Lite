@@ -28,12 +28,14 @@ int ConvertFill(Converter* converter, hal::Operation* operation) {
   if (shape_operator == nullptr) {
     shape_operator = converter->ConvertOperand(shape_operand);
   }
-  auto value_operator = converter->GetMappedOperator(value_operand);
-  if (value_operator == nullptr) {
-    value_operator = converter->ConvertOperand(value_operand);
-  }
+  // auto value_operator = converter->GetMappedOperator(value_operand);
+  // if (value_operator == nullptr) {
+  value_operand->type.dimensions.count = 0;
+  auto value_operator = converter->ConvertOperand(value_operand, std::vector<int32_t>());
+  // }
   auto fill_op = converter->AddOperator<ge::op::Fill>(output_operand);
   SET_INPUT(fill_op, dims, shape_operator);
+  // fill_op->set_attr_value(static_cast<float>(reinterpret_cast<int64_t*>(value_operand->buffer)[0]));
   SET_INPUT(fill_op, value, value_operator);
   MAP_OUTPUT(fill_op, y, output_operand);
   return NNADAPTER_NO_ERROR;

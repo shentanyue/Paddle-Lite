@@ -37,6 +37,18 @@ int ConvertRange(Converter* converter, hal::Operation* operation) {
   if (!delta_operator) {
     delta_operator = converter->ConvertOperand(delta_operand);
   }
+  if (IsConstantOperand(start_operand)) {
+    auto data = reinterpret_cast<int64_t*>(start_operand->buffer)[0];
+    NNADAPTER_VLOG(5) << "ConvertRangeValue: " << data;
+  }
+    if (IsConstantOperand(limit_operand)) {
+    auto data = reinterpret_cast<int64_t*>(limit_operand->buffer)[0];
+    NNADAPTER_VLOG(5) << "ConvertRangeValue: " << data;
+  }
+    if (IsConstantOperand(delta_operand)) {
+    auto data = reinterpret_cast<int64_t*>(delta_operand->buffer)[0];
+    NNADAPTER_VLOG(5) << "ConvertRangeValue: " << data;
+  }
   auto range_op = converter->AddOperator<ge::op::Range>(output_operand);
   SET_INPUT(range_op, start, start_operator);
   SET_INPUT(range_op, limit, limit_operator);

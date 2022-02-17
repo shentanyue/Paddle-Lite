@@ -16,6 +16,7 @@
 #include "driver/huawei_ascend_npu/converter/converter.h"
 #include "utility/debug.h"
 #include "utility/logging.h"
+#include "utility/modeling.h"
 
 namespace nnadapter {
 namespace huawei_ascend_npu {
@@ -31,6 +32,14 @@ int ConvertComparisons(Converter* converter, hal::Operation* operation) {
   auto input1_operator = converter->GetMappedOperator(input1_operand);
   if (!input1_operator) {
     input1_operator = converter->ConvertOperand(input1_operand);
+  }
+  if (IsConstantOperand(input0_operand)) {
+    auto data = reinterpret_cast<int64_t*>(input0_operand->buffer)[0];
+    NNADAPTER_VLOG(5) << "ConvertComparisons: " << data;
+  }
+    if (IsConstantOperand(input1_operand)) {
+    auto data = reinterpret_cast<int64_t*>(input1_operand->buffer)[0];
+    NNADAPTER_VLOG(5) << "ConvertComparisons: " << data;
   }
   switch (operation->type) {
 #define CONVERT_COMPARISON(type, class_name)                                   \

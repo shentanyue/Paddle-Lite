@@ -77,10 +77,6 @@ void FillConstantCalcOfflinePass::RemoveFillConstantPattern(
     auto dtype = op_desc->GetAttr<int>("dtype");
     auto value = op_desc->GetAttr<float>("value");
     std::vector<int64_t> shape = op_desc->GetAttr<std::vector<int64_t>>("shape");
-    LOG(INFO) << "value: " << value;
-    // if (shape.empty()) {
-    //   shape = std::vector<int64_t>({1});
-    // }
     // Get fill_constant's output tensor
     auto out_var = scope->FindVar(op_desc->Output("Out").front());
     auto out_t = out_var->GetMutable<lite::Tensor>();
@@ -88,19 +84,15 @@ void FillConstantCalcOfflinePass::RemoveFillConstantPattern(
     switch (dtype) {
       case static_cast<int>(lite::core::FluidType::BOOL):
         FillConstData<bool>(out_t, static_cast<bool>(value));
-        LOG(INFO) << "out_t value: " << out_t->mutable_data<bool>()[0];
         break;
       case static_cast<int>(lite::core::FluidType::INT32):
         FillConstData<int32_t>(out_t, static_cast<int32_t>(value));
-        LOG(INFO) << "out_t value: " << out_t->mutable_data<int32_t>()[0];
         break;
       case static_cast<int>(lite::core::FluidType::INT64):
         FillConstData<int64_t>(out_t, static_cast<int64_t>(value));
-        LOG(INFO) << "out_t value: " << out_t->mutable_data<int64_t>()[0];
         break;
       case static_cast<int>(lite::core::FluidType::FP32):
         FillConstData<float>(out_t, static_cast<float>(value));
-        LOG(INFO) << "out_t value: " << out_t->mutable_data<float>()[0];
         break;
       default:
         LOG(WARNING) << "Unsupported dtype for fill_constant op: " << dtype;

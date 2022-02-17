@@ -85,9 +85,11 @@ void InitializeGraphBuilder() {
     std::map<ge::AscendString, ge::AscendString> global_options;
     global_options.insert(
         std::make_pair(ge::ir_option::SOC_VERSION, soc_version));
-#if NNADAPTER_HUAWEI_ASCEND_NPU_CANN_VERSION_GREATER_THAN(5, 0, 3)
+#if NNADAPTER_HUAWEI_ASCEND_NPU_CANN_VERSION_GREATER_THAN(5, 0, 1)
     global_options.insert(std::make_pair(ge::ir_option::OP_DEBUG_LEVEL, "0"));
     global_options.insert(std::make_pair(ge::ir_option::DEBUG_DIR, "/tmp/"));
+    global_options.insert(std::make_pair(ge::ir_option::MODIFY_MIXLIST, "/root/ops_info.json"));
+    global_options.insert(std::make_pair(ge::ir_option::PRECISION_MODE, "allow_mix_precision"));
 #endif
     ge::aclgrphBuildInitialize(global_options);
     // Register 'FinalizeGraphBuilder' to be called at normal process

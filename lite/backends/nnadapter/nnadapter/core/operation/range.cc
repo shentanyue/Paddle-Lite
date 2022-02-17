@@ -27,6 +27,7 @@ namespace operation {
 void GetRangeOperandValue(hal::Operand* operand, int64_t& data) {
   if (IsConstantOperand(operand)) {
     data = reinterpret_cast<int64_t*>(operand->buffer)[0];
+    NNADAPTER_VLOG(5) << "GetRangeOperandValue: " << data;
   } else if (IsTemporaryShapeOperand(operand)) {
     auto& temporary_shape = *(GetTemporaryShape(operand));
     NNADAPTER_CHECK_EQ(temporary_shape.count, 1);
