@@ -1,4 +1,4 @@
-// Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,21 +21,15 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "lite/core/optimizer/mir/pass.h"
-#include "lite/core/optimizer/mir/pass_registry.h"
-#include "lite/core/tensor.h"
-#include "lite/core/types.h"
 
 namespace paddle {
 namespace lite {
 namespace mir {
 
-static int32_t count;
-
-class FillConstantCalcOfflinePass : public mir::StmtPass {
- public:
-  void Apply(const std::unique_ptr<SSAGraph>& graph) override;
-  void RemoveFillConstantPattern(const std::unique_ptr<SSAGraph>& graph);
-};
+void CollectControlFlowOpInputsOutputs(
+    const std::unique_ptr<mir::SSAGraph>& graph,
+    std::unordered_set<std::string>* in_vars,
+    std::unordered_set<std::string>* out_vars);
 
 }  // namespace mir
 }  // namespace lite

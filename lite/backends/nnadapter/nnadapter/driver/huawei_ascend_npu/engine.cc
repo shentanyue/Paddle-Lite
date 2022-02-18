@@ -14,6 +14,7 @@
 
 #include "driver/huawei_ascend_npu/engine.h"
 #include <utility>
+#include "driver/huawei_ascend_npu/utility.h"
 #include "driver/huawei_ascend_npu/optimizer/fix_multiple_outputs_ops.h"
 #include "driver/huawei_ascend_npu/optimizer/fix_no_inputs_ops.h"
 #include "driver/huawei_ascend_npu/optimizer/fix_quantized_ops.h"
@@ -71,6 +72,35 @@ Context::Context(void* device, const char* properties) : device_(device) {
         GetStringFromEnv(HUAWEI_ASCEND_NPU_PROFILING_FILE_PATH);
   }
   NNADAPTER_LOG(INFO) << "profiling path: " << profiling_file_path_;
+  // HUAWEI_ASCEND_NPU_DUMP_MODEL_FILE_PATH
+  if (key_values.count(HUAWEI_ASCEND_NPU_DUMP_MODEL_FILE_PATH)) {
+    dump_model_path_ = key_values[HUAWEI_ASCEND_NPU_DUMP_MODEL_FILE_PATH];
+  } else {
+    dump_model_path_ =
+        GetStringFromEnv(HUAWEI_ASCEND_NPU_DUMP_MODEL_FILE_PATH);
+  }
+  ascend_config_params_.dump_model_path = dump_model_path_;
+  NNADAPTER_LOG(INFO) << "dump model path: " << dump_model_path_;
+  // HUAWEI_ASCEND_NPU_PRECISION_MODE
+  if (key_values.count(HUAWEI_ASCEND_NPU_PRECISION_MODE)) {
+    precision_mode_ = key_values[HUAWEI_ASCEND_NPU_PRECISION_MODE];
+  } else {
+    precision_mode_ =
+        GetStringFromEnv(HUAWEI_ASCEND_NPU_PRECISION_MODE);
+  }
+  ascend_config_params_.precision_mode = precision_mode_;
+  NNADAPTER_LOG(INFO) << "precision mode: " << precision_mode_;
+  if (precision_mode_ == "allow_mix_precision") {
+    // HUAWEI_ASCEND_NPU_MODIFY_MIXLIST_FILE_PATH
+    if (key_values.count(HUAWEI_ASCEND_NPU_MODIFY_MIXLIST_FILE_PATH)) {
+      modify_mixlist_path_ = key_values[HUAWEI_ASCEND_NPU_MODIFY_MIXLIST_FILE_PATH];
+    } else {
+      modify_mixlist_path_ =
+          GetStringFromEnv(HUAWEI_ASCEND_NPU_MODIFY_MIXLIST_FILE_PATH);
+    }
+    ascend_config_params_.modify_mixlist_path = modify_mixlist_path_;
+    NNADAPTER_LOG(INFO) << "modify mixlist path: " << modify_mixlist_path_;
+  }
 }
 
 Context::~Context() {}
@@ -165,7 +195,8 @@ int Program::Build(hal::Model* model, hal::Cache* cache) {
                               model_buffer,
                               dynamic_shape_info,
                               optional_shape_str,
-                              dynamic_shape_mode_)) {
+                              dynamic_shape_mode_,
+                              context_->GetAscendConfigParams())) {
       NNADAPTER_LOG(FATAL)
           << "Failed to build a CANN OM model and serialize it into a buffer!";
       return NNADAPTER_DEVICE_INTERNAL_ERROR;

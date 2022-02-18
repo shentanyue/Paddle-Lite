@@ -26,60 +26,60 @@ namespace paddle {
 namespace lite {
 namespace mir {
 
-// Sync the type of variable to the shared one in subblocks
+// Sync the data of variable to the shared one in subblocks
 //
 // For example:
 // graph[0]: main block
-//                      in_x(target:x86)
+//                      in_x
 //                       |
 //                       |
 //                       |
-//                     while(target:host) ------- in_w(target:x86)
+//                     while ------- in_w(value=10)
 //                       |
 //                       |
 //                       |
-//                     out_x(target:host)
+//                     out_x
 //
 // graph[1]: sub block
-//                     in_x(target:xpu)
+//                     in_x
 //                       |
 //                       |
 //                       |
-//                      fc(target:xpu) ------ in_w(target:x86)
+//                      fc ------ in_w(value=?)
 //                       |
 //                       |
-//                     softmax(target:xpu)
+//                     softmax
 //                       |
 //                       |
-//                     out_x(target:xpu)
+//                     out_x
 //
 // After the pass is applied:
 //
 // graph[0]: main block
-//                      in_x(target:x86)
+//                      in_x
 //                       |
 //                       |
 //                       |
-//                     while(target:host) ------- in_w(target:x86)
+//                     while ------- in_w(value=10)
 //                       |
 //                       |
 //                       |
-//                     out_x(target:host)
+//                     out_x
 //
 // graph[1]: sub block
-//                     in_x(target:x86)
+//                     in_x
 //                       |
 //                       |
 //                       |
-//                      fc(target:xpu) ------ in_w(target:x86)
+//                      fc ------ in_w(value=10)
 //                       |
 //                       |
-//                     softmax(target:xpu)
+//                     softmax
 //                       |
 //                       |
-//                     out_x(target:host)
+//                     out_x
 
-class ControlFlowOpSharedInputsAndOutputsValueSyncPass : public mir::StmtPass {
+class ControlFlowOpSharedInputsAndOutputsDataSyncPass : public mir::StmtPass {
  public:
   void Apply(const std::unique_ptr<SSAGraph> &graph) override;
   void SetAllGraphs(std::vector<std::unique_ptr<mir::SSAGraph>> *graphs);

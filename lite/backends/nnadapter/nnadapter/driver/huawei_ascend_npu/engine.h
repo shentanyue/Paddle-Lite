@@ -40,6 +40,10 @@ class Context {
     return selected_device_ids_.empty() ? 0 : selected_device_ids_[0];
   }
   std::string GetProfilingFilePath() { return profiling_file_path_; }
+  std::string GetDumpModelPath() { return dump_model_path_; }
+  std::string GetPrecisionMode() { return precision_mode_; }
+  std::string GetModifyMixlistPath() { return modify_mixlist_path_; }
+  AscendConfigParams* GetAscendConfigParams() {return &ascend_config_params_; }
   ~Context();
 
  private:
@@ -47,6 +51,10 @@ class Context {
   void* context_{nullptr};
   std::vector<int> selected_device_ids_;
   std::string profiling_file_path_ = "";
+  std::string dump_model_path_ = "";
+  std::string precision_mode_ = "";
+  std::string modify_mixlist_path_ = "";
+  AscendConfigParams ascend_config_params_;
 };
 
 class Program {

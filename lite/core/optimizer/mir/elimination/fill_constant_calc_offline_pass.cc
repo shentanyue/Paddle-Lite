@@ -19,9 +19,13 @@
 #include <memory>
 #include <set>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include "lite/core/optimizer/optimizer.h"
 #include "lite/core/optimizer/mir/pass.h"
 #include "lite/core/optimizer/mir/pass_registry.h"
 #include "lite/core/optimizer/mir/pattern_matcher.h"
+#include "lite/core/optimizer/mir/elimination/utility.h"
 #include "lite/model_parser/cpp_desc.h"
 
 namespace paddle {
@@ -49,6 +53,20 @@ void FillConstantCalcOfflinePass::RemoveFillConstantPattern(
     auto& fill_constant_instruct = node->AsStmt();
     auto* scope = fill_constant_instruct.op()->scope();
     auto op_desc = fill_constant_instruct.mutable_op_info();
+    // Skip control flow ops
+    std::unordered_set<std::string> in_vars;
+    std::unordered_set<std::string> out_vars;
+    bool is_var_of_while = false;
+    CollectControlFlowOpInputsOutputs(graph, &in_vars, &out_vars);
+    auto fill_constant_outlinks = node->outlinks;
+    for (auto& fill_constant_out_link : fill_constant_outlinks) {
+      auto var_name = fill_constant_out_link->arg()->name;
+      if (in_vars.count(var_name) || out_vars.count(var_name))  {
+        is_var_of_while = true;
+        break;
+      }
+    }
+    if (is_var_of_while) continue;
     if ((op_desc->HasInput("ValueTensor") &&
          !op_desc->Input("ValueTensor").empty()) ||
         (op_desc->HasInput("str_value") &&
@@ -102,7 +120,6 @@ void FillConstantCalcOfflinePass::RemoveFillConstantPattern(
     // tensor
     out_t->set_persistable(true);
 
-    auto fill_constant_outlinks = node->outlinks;
     for (auto& fill_constant_out_link : fill_constant_outlinks) {
       fill_constant_out_link->arg()->is_weight = true;
     }

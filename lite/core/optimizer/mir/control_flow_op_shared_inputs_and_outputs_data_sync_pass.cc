@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "lite/core/optimizer/mir/control_flow_op_shared_inputs_and_outputs_value_sync_pass.h"
+#include "lite/core/optimizer/mir/control_flow_op_shared_inputs_and_outputs_data_sync_pass.h"
 #include <algorithm>
 #include <list>
 #include <memory>
@@ -27,34 +27,32 @@ namespace paddle {
 namespace lite {
 namespace mir {
 
-void CheckAndSyncValueOfVarNode(
+void CheckAndSyncDataOfVarNode(
     Node* sub_var_node,
-    const std::unordered_map<std::string, const Type*>& ref_var_types,
     const std::unordered_map<std::string, bool>& ref_var_is_weights,
-    const std::unordered_map<std::string, lite::Tensor*> ref_var_infos,
+    const std::unordered_map<std::string, const lite::Tensor*>& ref_var_datas,
     Scope* scope) {
   CHECK(sub_var_node->IsArg());
   auto& sub_var_name = sub_var_node->AsArg().name;
-  if (ref_var_types.count(sub_var_name)) {
-    sub_var_node->AsArg().type = ref_var_types.at(sub_var_name);
-  }
+  // sync weights
   if (ref_var_is_weights.count(sub_var_name)) {
     sub_var_node->AsArg().is_weight = ref_var_is_weights.at(sub_var_name);
   }
-  if (ref_var_infos.count(sub_var_name)) {
-    auto out_var = scope->FindVar(sub_var_name);
-    auto out_t = out_var->GetMutable<lite::Tensor>();
-    out_t->CopyDataFrom(*ref_var_infos.at(sub_var_name));
+  // sync var data
+  if (ref_var_datas.count(sub_var_name)) {
+    auto sub_var = scope->FindVar(sub_var_name);
+    auto sub_var_tensor = sub_var->GetMutable<lite::Tensor>();
+    sub_var_tensor->CopyDataFrom(*ref_var_datas.at(sub_var_name));
   }
 }
 
-void ControlFlowOpSharedInputsAndOutputsValueSyncPass::SetAllGraphs(
+void ControlFlowOpSharedInputsAndOutputsDataSyncPass::SetAllGraphs(
     std::vector<std::unique_ptr<mir::SSAGraph>>* graphs) {
   CHECK(graphs && !graphs->empty());
   graphs_ = graphs;
 }
 
-void ControlFlowOpSharedInputsAndOutputsValueSyncPass::Apply(
+void ControlFlowOpSharedInputsAndOutputsDataSyncPass::Apply(
     const std::unique_ptr<SSAGraph>& graph) {
   const std::unordered_set<std::string> control_flow_op_types = {
       "while", "conditional_block"};
@@ -67,25 +65,20 @@ void ControlFlowOpSharedInputsAndOutputsValueSyncPass::Apply(
     int sub_block_idx = op_info->GetAttr<int32_t>("sub_block");
     CHECK_GE(sub_block_idx, 0);
     CHECK_LT(sub_block_idx, block_size);
-    std::unordered_map<std::string, const Type*> ref_var_types;
     std::unordered_map<std::string, bool> ref_var_is_weights;
-    std::unordered_map<std::string, lite::Tensor*> ref_var_value;
-
+    std::unordered_map<std::string, const lite::Tensor*> ref_var_datas;
     auto* scope = op_node->AsStmt().op()->scope();
     for (auto* var_node : op_node->inlinks) {
       CHECK(var_node->IsArg());
-      // if (var_node->inlinks.empty()) continue;
       auto& var_name = var_node->AsArg().name;
-      if (!ref_var_types.count(var_name)) {
-        ref_var_types.insert(std::pair<std::string, const Type*>(
-            var_name, var_node->AsArg().type));
+      if (!ref_var_is_weights.count(var_name)) {
         ref_var_is_weights.insert(std::pair<std::string, bool>(
             var_name, var_node->AsArg().is_weight));
         if (var_node->AsArg().is_weight) {
-          auto out_var = scope->FindVar(var_name);
-          auto out_t = out_var->GetMutable<lite::Tensor>();
-          ref_var_value.insert(std::pair<std::string, lite::Tensor*>(
-              var_name, out_t));
+          auto var = scope->FindVar(var_name);
+          auto var_tensor = var->GetMutable<lite::Tensor>();
+          ref_var_datas.insert(std::pair<std::string, lite::Tensor*>(
+              var_name, var_tensor));
         }
       }
     }
@@ -93,21 +86,21 @@ void ControlFlowOpSharedInputsAndOutputsValueSyncPass::Apply(
     // sync input var
     for (auto& sub_op_node :
          (*graphs_)[sub_block_idx]->StmtTopologicalOrder()) {
-      auto* scope = sub_op_node->AsStmt().op()->scope();
+      auto* sub_scope = sub_op_node->AsStmt().op()->scope();
       if (!sub_op_node->IsStmt()) continue;
       for (auto* sub_var_node : sub_op_node->inlinks) {
-        CheckAndSyncValueOfVarNode(sub_var_node, ref_var_types, ref_var_is_weights, ref_var_value, scope);
+        CheckAndSyncDataOfVarNode(sub_var_node, ref_var_is_weights, ref_var_datas, sub_scope);
       }
       for (auto* sub_var_node : sub_op_node->outlinks) {
-        auto& var_name = sub_var_node->AsArg().name;
-        if (!ref_var_types.count(var_name)) {
-          ref_var_types.insert(std::pair<std::string, const Type*>(
-              var_name, sub_var_node->AsArg().type));
+        auto& sub_var_name = sub_var_node->AsArg().name;
+        if (!ref_var_is_weights.count(sub_var_name)) {
           ref_var_is_weights.insert(std::pair<std::string, bool>(
-            var_name, sub_var_node->AsArg().is_weight));
+            sub_var_name, sub_var_node->AsArg().is_weight));
           if (sub_var_node->AsArg().is_weight) {
-            auto out_var = scope->FindVar(var_name);
-            auto out_t = out_var->GetMutable<lite::Tensor>();
+            auto sub_var = sub_scope->FindVar(sub_var_name);
+            auto sub_var_tensor = sub_var->GetMutable<lite::Tensor>();
+            ref_var_datas.insert(std::pair<std::string, lite::Tensor*>(
+                sub_var_name, sub_var_tensor));
           }
         }
       }
@@ -116,7 +109,7 @@ void ControlFlowOpSharedInputsAndOutputsValueSyncPass::Apply(
     // sync output var
     for (auto* var_node : op_node->outlinks) {
       CHECK(var_node->IsArg());
-      CheckAndSyncValueOfVarNode(var_node, ref_var_types, ref_var_is_weights, ref_var_value, scope);
+      CheckAndSyncDataOfVarNode(var_node, ref_var_is_weights, ref_var_datas, scope);
     }
   }
 }
@@ -126,6 +119,6 @@ void ControlFlowOpSharedInputsAndOutputsValueSyncPass::Apply(
 }  // namespace paddle
 
 REGISTER_MIR_PASS(
-    control_flow_op_shared_inputs_and_outputs_value_sync_pass,
-    paddle::lite::mir::ControlFlowOpSharedInputsAndOutputsValueSyncPass)
+    control_flow_op_shared_inputs_and_outputs_data_sync_pass,
+    paddle::lite::mir::ControlFlowOpSharedInputsAndOutputsDataSyncPass)
     .BindTargets({TARGET(kNNAdapter)});

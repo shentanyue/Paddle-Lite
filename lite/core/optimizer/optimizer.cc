@@ -56,6 +56,7 @@ std::unique_ptr<RuntimeProgram> Optimizer::Run(Program&& program) {
   InitTargetTypeTransformPass();
   InitControlFlowOpUnusedInputsAndOutputsEliminatePass();
   InitControlFlowOpSharedInputsAndOutputsPlaceSyncPass();
+  InitControlFlowOpSharedInputsAndOutputsDataSyncPass();
 
   ApplyPasses(&graphs_);
 
@@ -100,6 +101,16 @@ void Optimizer::InitControlFlowOpSharedInputsAndOutputsPlaceSyncPass() {
   pass->SetAllGraphs(&graphs_);
 }
 
+void Optimizer::InitControlFlowOpSharedInputsAndOutputsDataSyncPass() {
+  auto* pass =
+      mir::PassManager::Global()
+          .LookUp<mir::ControlFlowOpSharedInputsAndOutputsDataSyncPass>(
+              "control_flow_op_shared_inputs_and_outputs_data_sync_pass");
+  CHECK(pass);
+  CHECK(!graphs_.empty());
+  pass->SetAllGraphs(&graphs_);
+}
+
 void Optimizer::ApplyPasses(
     std::vector<std::unique_ptr<mir::SSAGraph>>* graphes) {
   for (auto& pass : passes_) {
@@ -119,7 +130,6 @@ void Optimizer::ApplyPasses(
         pass->Apply((*graphes)[kRootBlockIdx]);
       } else {
         int count = 0;
-        LOG(INFO) << "[DEBUG]: graph_size" << graphes->size();
         for (auto& graph : *graphes) {
           count += 1;
           if (count > 1 && pass->name() == "fill_constant_calc_offline_pass" ||
@@ -153,12 +163,12 @@ std::unique_ptr<RuntimeProgram> RunDefaultOptimizer(
        "assign_value_calc_offline_pass",
        "p_norm_fill_constant_max_div_fuse_pass",
        "fill_constant_calc_offline_pass",
-       "control_flow_op_shared_inputs_and_outputs_place_sync_pass",
+       "control_flow_op_shared_inputs_and_outputs_data_sync_pass",
        "range_calc_offline_pass",
        "scale_calc_offline_pass",
        "unsqueeze_calc_offline_pass",
        "ssd_boxes_calc_offline_pass",
-       "control_flow_op_shared_inputs_and_outputs_place_sync_pass",
+       "control_flow_op_shared_inputs_and_outputs_data_sync_pass",
        "adaptive_1x1_pool2d_convert_global_pass",  //
        "lite_unsqueeze2_pad3d_squeeze2_fuse_pass",
        "lite_conv_elementwise_fuse_pass",  // conv-elemwise-bn

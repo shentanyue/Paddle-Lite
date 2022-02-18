@@ -19,10 +19,13 @@
 #include <memory>
 #include <set>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 #include "lite/core/optimizer/mir/pass.h"
 #include "lite/core/optimizer/mir/pass_registry.h"
 #include "lite/core/optimizer/mir/pattern_matcher.h"
 #include "lite/model_parser/cpp_desc.h"
+#include "lite/core/optimizer/mir/elimination/utility.h"
 
 namespace paddle {
 namespace lite {
@@ -41,7 +44,20 @@ void AssignValueCalcOfflinePass::RemoveAssignValuePattern(
     auto& assign_value_instruct = node->AsStmt();
     auto* scope = assign_value_instruct.op()->scope();
     auto op_desc = assign_value_instruct.mutable_op_info();
-
+    // Skip control flow ops
+    std::unordered_set<std::string> in_vars;
+    std::unordered_set<std::string> out_vars;
+    bool is_var_of_while = false;
+    CollectControlFlowOpInputsOutputs(graph, &in_vars, &out_vars);
+    auto fill_constant_outlinks = node->outlinks;
+    for (auto& fill_constant_out_link : fill_constant_outlinks) {
+      auto var_name = fill_constant_out_link->arg()->name;
+      if (in_vars.count(var_name) || out_vars.count(var_name))  {
+        is_var_of_while = true;
+        break;
+      }
+    }
+    if (is_var_of_while) continue;
     // Get assign_value's attr
     CHECK(op_desc->HasAttr("shape"));
     auto shape = op_desc->GetAttr<std::vector<int>>("shape");
