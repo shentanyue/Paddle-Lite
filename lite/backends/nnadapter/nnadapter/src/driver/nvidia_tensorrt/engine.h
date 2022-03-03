@@ -44,13 +44,7 @@ class Context {
 struct Deleter {
   template <typename T>
   void operator()(T* obj) const {
-#if TENSORRT_MAJOR_VERSION >= 8
     delete obj;
-#else
-    if (obj) {
-      obj->destroy();
-    }
-#endif
   }
 };
 
