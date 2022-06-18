@@ -35,13 +35,11 @@ class Context {
   ~Context();
 
   std::string RuntimeLib() { return runtime_lib_; }
-  std::string OpPackageLib() { return op_package_lib_; }
 
  private:
   void* device_{nullptr};
   void* context_{nullptr};
   std::string runtime_lib_;
-  std::string op_package_lib_;
 };
 
 class Program {
@@ -63,17 +61,22 @@ class Program {
                             core::Argument* input_arguments,
                             uint32_t output_count,
                             core::Argument* output_arguments);
+  void SerializeToCache(std::vector<uint8_t>* buffer);
+  void DeserializeFromCache(std::vector<uint8_t>* buffer);
+  void InitInputTensor(size_t index);
+  void InitOutputTensor(size_t index);
 
  private:
   Context* context_{nullptr};
-  void* lib_backend_handle_{nullptr};
-  QNN_INTERFACE_VER_TYPE qnn_interface_;
-  QualcommQnnDeviceType device_type_;
-  const QnnBackend_Config_t* qnn_backend_configs_{nullptr};
+  static void* lib_backend_handle_;
+  static QNN_INTERFACE_VER_TYPE qnn_interface_;
+  static const QnnBackend_Config_t* qnn_backend_configs_;
   const QnnContext_Config_t* qnn_context_configs_{nullptr};
-  Qnn_ContextHandle_t qnn_context_;
+  Qnn_ContextHandle_t qnn_context_{nullptr};
+  std::string graph_name_;
   const QnnGraph_Config_t* qnn_graph_config_{nullptr};
-  Qnn_GraphHandle_t qnn_graph_handle_;
+  Qnn_GraphHandle_t qnn_graph_handle_{nullptr};
+  QualcommQnnDeviceType device_type_{CPU_DEVICE};
   // Map NNAdapter operand to qnn tensor
   std::map<core::Operand*, std::vector<Qnn_Tensor_t>> tensors_;
   std::vector<NNAdapterOperandType> input_types_;
@@ -82,6 +85,8 @@ class Program {
   std::vector<Qnn_Tensor_t> output_tensors_;
   std::vector<std::vector<uint32_t>> input_dims_;
   std::vector<std::vector<uint32_t>> output_dims_;
+  std::vector<uint32_t> input_tensor_ids_;
+  std::vector<uint32_t> output_tensor_ids_;
 };
 
 }  // namespace qualcomm_qnn

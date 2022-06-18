@@ -37,11 +37,8 @@ typedef enum {
   DSP_DEVICE = 3,
 } QualcommQnnDeviceType;
 
-// Use which lib at runtime, for example: "libQnnCpu.so", "libQnnHtp.so"
-#define QUALCOMM_QNN_RUNTIME_LIB "QUALCOMM_QNN_RUNTIME_LIB"
-// Use which lib at runtime to load op package, for example:
-// "libqualcomm_qnn.so"
-#define QUALCOMM_QNN_OP_PACKAGE_LIB "QUALCOMM_QNN_OP_PACKAGE_LIB"
+// Use which lib at runtime, for example: "cpu", "htp"
+#define QUALCOMM_QNN_DEVICE "QUALCOMM_QNN_DEVICE"
 
 #define QNN_CHECK(a) NNADAPTER_CHECK_EQ((a), QNN_SUCCESS);
 

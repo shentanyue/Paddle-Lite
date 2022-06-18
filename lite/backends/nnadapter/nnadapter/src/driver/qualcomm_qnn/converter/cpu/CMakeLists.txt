@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(OP_PACKAGE_NAME qualcomm_qnn_custom_cpu_op_package)
+set(CPU_OP_PACKAGE_NAME qualcomm_qnn_custom_cpu_op_package)
 
 include_directories(.)
 aux_source_directory(. SRCS)
 
-add_library(${OP_PACKAGE_NAME} SHARED ${SRCS})
+add_library(${CPU_OP_PACKAGE_NAME} SHARED ${SRCS})

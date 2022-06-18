@@ -107,7 +107,7 @@ Qnn_ErrorHandle_t LogTerminate() { return QNN_SUCCESS; }
 extern "C" {
 #endif
 __attribute__((visibility("default"))) Qnn_ErrorHandle_t
-CustomCpuOpPackage_interfaceProvider(QnnOpPackage_Interface_t* interface) {
+CpuCustomOpPackage_interfaceProvider(QnnOpPackage_Interface_t* interface) {
   interface->interfaceVersion.major = 1;
   interface->interfaceVersion.minor = 4;
   interface->interfaceVersion.patch = 0;

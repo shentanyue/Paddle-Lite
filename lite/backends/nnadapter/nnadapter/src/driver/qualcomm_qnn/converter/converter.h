@@ -56,15 +56,17 @@ class Converter {
                std::vector<Qnn_Tensor_t> input_tensors,
                std::vector<Qnn_Tensor_t> output_tensors,
                std::vector<Qnn_Param_t> params = {},
-               const char* package_name = QNN_OP_PACKAGE_NAME_QTI_AISW);
+               bool is_custom_op = false);
 
-  bool IsCpu() { return device_type_ == CPU_DEVICE; }
+  bool DeviceType() { return device_type_; }
 
-  bool IsHtp() { return device_type_ == HTP_DEVICE; }
+  bool IsCustomOpPackageInitialized() {
+    return is_custom_op_package_initialized_;
+  }
 
-  bool IsGpu() { return device_type_ == GPU_DEVICE; }
-
-  bool IsDsp() { return device_type_ == DSP_DEVICE; }
+  void SetIsCustomOpPackageInitialized(bool is_custom_op_package_initialized) {
+    is_custom_op_package_initialized_ = is_custom_op_package_initialized;
+  }
 
  private:
   QNN_INTERFACE_VER_TYPE qnn_interface_;
@@ -73,6 +75,7 @@ class Converter {
   QualcommQnnDeviceType device_type_;
   uint32_t indexes_{0};
   std::vector<std::vector<uint32_t>> dims_;
+  bool is_custom_op_package_initialized_ = false;
 };
 
 }  // namespace qualcomm_qnn

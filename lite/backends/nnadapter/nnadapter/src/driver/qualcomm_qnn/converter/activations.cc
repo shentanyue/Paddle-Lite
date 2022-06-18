@@ -29,14 +29,15 @@ int ConvertActivations(Converter* converter, core::Operation* operation) {
       {NNADAPTER_RELU, QNN_OP_RELU},
   };
 
-  if (operation->type == NNADAPTER_RELU && converter->IsCpu()) {
-    converter->AddNode(op_type_map.at(operation->type),
-                       {input_tensor},
-                       {output_tensor},
-                       {},
-                       "Qualcomm.QNN.Custom.Cpu.OpPackage");
-    return NNADAPTER_NO_ERROR;
-  }
+  // use custom relu op
+  // if (operation->type == NNADAPTER_RELU) {
+  //   converter->AddNode(op_type_map.at(operation->type),
+  //                      {input_tensor},
+  //                      {output_tensor},
+  //                      {},
+  //                      true);
+  //   return NNADAPTER_NO_ERROR;
+  // }
 
   converter->AddNode(
       op_type_map.at(operation->type), {input_tensor}, {output_tensor});

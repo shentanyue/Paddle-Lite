@@ -177,7 +177,30 @@ void Converter::AddNode(const char* op_type,
                         std::vector<Qnn_Tensor_t> input_tensors,
                         std::vector<Qnn_Tensor_t> output_tensors,
                         std::vector<Qnn_Param_t> params,
-                        const char* package_name) {
+                        bool is_custom_op) {
+  const char* package_name = QNN_OP_PACKAGE_NAME_QTI_AISW;
+  if (is_custom_op && DeviceType() == CPU_DEVICE) {
+    if (!IsCustomOpPackageInitialized()) {
+      // init custom cpu op package
+      QNN_CHECK(qnn_interface_.backendRegisterOpPackage(
+          "libqualcomm_qnn_custom_cpu_op_package.so",
+          "CpuCustomOpPackage_interfaceProvider",
+          nullptr));
+      SetIsCustomOpPackageInitialized(true);
+    }
+    package_name = "Custom.Cpu.OpPackage";
+  } else if (is_custom_op && DeviceType() == HTP_DEVICE) {
+    if (!IsCustomOpPackageInitialized()) {
+      // init custom htp op package
+      QNN_CHECK(qnn_interface_.backendRegisterOpPackage(
+          "libqualcomm_qnn_custom_htp_op_package.so",
+          "HtpCustomOpPackage_interfaceProvider",
+          nullptr));
+      SetIsCustomOpPackageInitialized(true);
+    }
+    package_name = "Custom.Htp.OpPackage";
+  }
+
   Qnn_OpConfig_t op_def = QNN_OPCONFIG_INIT;
   std::string name(op_type);
   name += "_" + std::to_string(indexes_++);

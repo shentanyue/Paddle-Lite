@@ -37,21 +37,22 @@ using namespace hnnx;  // NOLINT
 // op execute function declarations
 // op 1
 template <typename T_Ttype>
-int ReluImpl(T_Ttype *out, const T_Ttype &in;
+int ReluImpl(T_Ttype &out, const T_Ttype &in);  // NOLINT
 
 // op 2
 template <typename T_TtypeI, typename T_TtypeX>
-int ReluMinMaxImpl(T_TtypeI &out,//NOLINT
+int ReluMinMaxImpl(T_TtypeI &out,  // NOLINT
                    const T_TtypeI &in,
                    const T_TtypeX &in_x,
                    const T_TtypeX &in_y);
 
 // op 3
-GraphStatus ReluTablegenImpl(TensorContiguous<Tdefs::QuantUint8> &out, //NOLINT
-                             const Tensor &in_step_size,
-                             const Tensor &in_offset,
-                             const Tensor &min,
-                             const Tensor &max);
+GraphStatus ReluTablegenImpl(
+    TensorContiguous<Tdefs::QuantUint8> &out,  // NOLINT
+    const Tensor &in_step_size,
+    const Tensor &in_offset,
+    const Tensor &min,
+    const Tensor &max);
 
 }  // namespace htp
 }  // namespace qualcomm_qnn

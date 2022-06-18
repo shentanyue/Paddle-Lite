@@ -68,100 +68,103 @@ int ReluMinMaxImpl(T_TtypeI &out,  // NOLINT
 
   const auto[b_in, h_in, w_in, d_in] = in.dims();
 
-  if {
-    constexpr(!(std::is_same<Tensor, T_TtypeI>::value)) {
+  if
+    constexpr(!(std::is_same<Tensor, T_TtypeI>::value)) {  // NOLINT
       if (in.interface_scale() == out.interface_scale() &&
           in.interface_offset() == out.interface_offset()) {
         no_scaling = true;
       }
     }
-  }
 
   if (no_scaling) {
     static const float s_inf = std::numeric_limits<float>::infinity();
     static const int s_min_int = std::numeric_limits<int>::min();
     static const int s_max_int = std::numeric_limits<int>::max();
 
-    if (constexpr(std::is_base_of<LayoutCrouton_8, T_TtypeI>::value)) {
-      const float out_step = out.interface_scale();
-      const int out_zero_offset = out.interface_offset();
-      size_t in_blocks = in.blocktab_len();
-      auto in_block_tab = in.blocktab_ptr();
-      auto out_block_tab = out.blocktab_ptr();
-      int min_output = s_min_int;
-      int max_output = s_max_int;
-      if (x > -s_inf) {
-        min_output = saturate_round<int>(x / out_step + out_zero_offset);
-      }
-      if (y < s_inf) {
-        max_output = saturate_round<int>(y / out_step + out_zero_offset);
-      }
-      const int min_clip = std::max(static_cast<int>(min_output), 0);
-      const int max_clip = std::min(static_cast<int>(max_output), 255);
-      HVX_Vector vOmin = Q6_Vb_vsplat_R(min_clip);
-      HVX_Vector vOmax = Q6_Vb_vsplat_R(max_clip);
-      for (uint32_t i = 0; i < in_blocks; ++i) {
-        auto in_vptr = (const HVX_Vector *)(in_block_tab[i]);
-        auto out_vptr = reinterpret_cast<HVX_Vector *>(out_block_tab[i]);
-        for (uint32_t j = 0; j < 16; ++j) {
-          out_vptr[j] =
-              Q6_Vub_vmin_VubVub(Q6_Vub_vmax_VubVub(in_vptr[j], vOmin), vOmax);
+    if
+      constexpr(std::is_base_of<LayoutCrouton_8, T_TtypeI>::value) {  // NOLINT
+        const float out_step = out.interface_scale();
+        const int out_zero_offset = out.interface_offset();
+        size_t in_blocks = in.blocktab_len();
+        auto in_block_tab = in.blocktab_ptr();
+        auto out_block_tab = out.blocktab_ptr();
+        int min_output = s_min_int;
+        int max_output = s_max_int;
+        if (x > -s_inf) {
+          min_output = saturate_round<int>(x / out_step + out_zero_offset);
         }
-      }
-      return GraphStatus::Success;
-    } else if (constexpr(std::is_base_of<LayoutFlat_8, T_TtypeI>::value)) {
-      uint8_t *outptr = &out.get_raw(0, 0, 0, 0);
-      const uint8_t *inptr = &in.get_raw(0, 0, 0, 0);
-      int32_t length = b_in * h_in * w_in * d_in;
-
-      const float out_step = out.interface_scale();
-      const int out_zero_offset = out.interface_offset();
-      int min_output = s_min_int;
-      int max_output = s_max_int;
-      if (x > -s_inf) {
-        min_output = saturate_round<int>(x / out_step + out_zero_offset);
-      }
-      if (y < s_inf) {
-        max_output = saturate_round<int>(y / out_step + out_zero_offset);
-      }
-      const int min_clip = std::max(static_cast<int>(min_output), 0);
-      const int max_clip = std::min(static_cast<int>(max_output), 255);
-      HVX_Vector vOmin = Q6_Vb_vsplat_R(min_clip);
-      HVX_Vector vOmax = Q6_Vb_vsplat_R(max_clip);
-
-      int nvecs = length >> 7;
-      int leftover = length & 127;
-
-      bool use_unalign =
-          (((size_t)inptr) & 0x7f) != 0 || (((size_t)outptr) & 0x7f) != 0;
-
-      if (use_unalign) {
-        for (int n = 0; n < nvecs; n++) {
-          q6op_vstu_AV(outptr,
-                       Q6_Vub_vmin_VubVub(
-                           Q6_Vub_vmax_VubVub(vmemu(inptr), vOmin), vOmax));
-          inptr += 128;
-          outptr += 128;
+        if (y < s_inf) {
+          max_output = saturate_round<int>(y / out_step + out_zero_offset);
         }
-      } else {
-        const HVX_Vector *vinptr = (const HVX_Vector *)inptr;
-        HVX_Vector *voptr = reinterpret_cast<HVX_Vector *>(outptr);
-        for (int n = 0; n < nvecs; n++) {
-          *voptr++ =
-              Q6_Vub_vmin_VubVub(Q6_Vub_vmax_VubVub(*vinptr++, vOmin), vOmax);
+        const int min_clip = std::max(static_cast<int>(min_output), 0);
+        const int max_clip = std::min(static_cast<int>(max_output), 255);
+        HVX_Vector vOmin = Q6_Vb_vsplat_R(min_clip);
+        HVX_Vector vOmax = Q6_Vb_vsplat_R(max_clip);
+        for (uint32_t i = 0; i < in_blocks; ++i) {
+          auto in_vptr = (const HVX_Vector *)(in_block_tab[i]);
+          auto out_vptr = reinterpret_cast<HVX_Vector *>(out_block_tab[i]);
+          for (uint32_t j = 0; j < 16; ++j) {
+            out_vptr[j] = Q6_Vub_vmin_VubVub(
+                Q6_Vub_vmax_VubVub(in_vptr[j], vOmin), vOmax);
+          }
         }
-        inptr = (const uint8_t *)vinptr;
-        outptr = reinterpret_cast<uint8_t *>(voptr);
+        return GraphStatus::Success;
       }
-      if (leftover) {
-        q6op_vstu_variable_ARV(
-            outptr,
-            leftover,
-            Q6_Vub_vmin_VubVub(Q6_Vub_vmax_VubVub(vmemu(inptr), vOmin), vOmax));
-      }
+    else if  // NOLINT
+      constexpr(std::is_base_of<LayoutFlat_8, T_TtypeI>::value) {
+        uint8_t *outptr = &out.get_raw(0, 0, 0, 0);
+        const uint8_t *inptr = &in.get_raw(0, 0, 0, 0);
+        int32_t length = b_in * h_in * w_in * d_in;
 
-      return GraphStatus::Success;
-    }
+        const float out_step = out.interface_scale();
+        const int out_zero_offset = out.interface_offset();
+        int min_output = s_min_int;
+        int max_output = s_max_int;
+        if (x > -s_inf) {
+          min_output = saturate_round<int>(x / out_step + out_zero_offset);
+        }
+        if (y < s_inf) {
+          max_output = saturate_round<int>(y / out_step + out_zero_offset);
+        }
+        const int min_clip = std::max(static_cast<int>(min_output), 0);
+        const int max_clip = std::min(static_cast<int>(max_output), 255);
+        HVX_Vector vOmin = Q6_Vb_vsplat_R(min_clip);
+        HVX_Vector vOmax = Q6_Vb_vsplat_R(max_clip);
+
+        int nvecs = length >> 7;
+        int leftover = length & 127;
+
+        bool use_unalign =
+            (((size_t)inptr) & 0x7f) != 0 || (((size_t)outptr) & 0x7f) != 0;
+
+        if (use_unalign) {
+          for (int n = 0; n < nvecs; n++) {
+            q6op_vstu_AV(outptr,
+                         Q6_Vub_vmin_VubVub(
+                             Q6_Vub_vmax_VubVub(vmemu(inptr), vOmin), vOmax));
+            inptr += 128;
+            outptr += 128;
+          }
+        } else {
+          const HVX_Vector *vinptr = (const HVX_Vector *)inptr;
+          HVX_Vector *voptr = reinterpret_cast<HVX_Vector *>(outptr);
+          for (int n = 0; n < nvecs; n++) {
+            *voptr++ =
+                Q6_Vub_vmin_VubVub(Q6_Vub_vmax_VubVub(*vinptr++, vOmin), vOmax);
+          }
+          inptr = (const uint8_t *)vinptr;
+          outptr = reinterpret_cast<uint8_t *>(voptr);
+        }
+        if (leftover) {
+          q6op_vstu_variable_ARV(
+              outptr,
+              leftover,
+              Q6_Vub_vmin_VubVub(Q6_Vub_vmax_VubVub(vmemu(inptr), vOmin),
+                                 vOmax));
+        }
+
+        return GraphStatus::Success;
+      }
   }
 
   warnlog("Reluxy using reference.... in: (%ld, %ld, %ld %ld) %s ",
