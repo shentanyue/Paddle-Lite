@@ -764,17 +764,16 @@ if(LITE_WITH_NNADAPTER)
       add_custom_target(publish_inference_nnadapter_qualcomm_qnn_cpu_op_package
         COMMAND mkdir -p "${INFER_LITE_PUBLISH_ROOT}/cxx/lib"
         COMMAND cp -r "${PADDLE_BINARY_DIR}/lite/backends/nnadapter/nnadapter/src/driver/qualcomm_qnn/converter/cpu/*.so" "${INFER_LITE_PUBLISH_ROOT}/cxx/lib"
-        DEPENDS qualcomm_qnn_custom_cpu_op_package
+        DEPENDS qualcomm_qnn_cpu_custom_op_package
       )
       add_dependencies(publish_inference publish_inference_nnadapter_qualcomm_qnn_cpu_op_package)
-      if (DEFINED NNADAPTER_QUALCOMM_HEXAGON_TOOLS_ROOT AND NNADAPTER_QUALCOMM_HEXAGON_TOOLS_ROOT)
-        add_custom_target(publish_inference_nnadapter_qualcomm_qnn_htp_op_package
-          COMMAND mkdir -p "${INFER_LITE_PUBLISH_ROOT}/cxx/lib"
-          COMMAND cp -r "${PADDLE_BINARY_DIR}/lite/backends/nnadapter/nnadapter/src/driver/qualcomm_qnn/converter/htp/*.so" "${INFER_LITE_PUBLISH_ROOT}/cxx/lib"
-          DEPENDS qualcomm_qnn_custom_htp_op_package
-        )
-        add_dependencies(publish_inference publish_inference_nnadapter_qualcomm_qnn_htp_op_package)
-      endif()
+
+      add_custom_target(publish_inference_nnadapter_qualcomm_qnn_htp_op_package
+        COMMAND mkdir -p "${INFER_LITE_PUBLISH_ROOT}/cxx/lib"
+        COMMAND cp -r "${PADDLE_BINARY_DIR}/lite/backends/nnadapter/nnadapter/src/driver/qualcomm_qnn/converter/htp/*.so" "${INFER_LITE_PUBLISH_ROOT}/cxx/lib"
+        DEPENDS qualcomm_qnn_htp_custom_op_package
+      )
+      add_dependencies(publish_inference publish_inference_nnadapter_qualcomm_qnn_htp_op_package)
     endif()
   endforeach()
 
