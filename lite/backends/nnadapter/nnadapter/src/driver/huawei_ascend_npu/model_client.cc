@@ -17,6 +17,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <pybind11/pybind11.h>
 
 #include "driver/huawei_ascend_npu/engine.h"
 #include "driver/huawei_ascend_npu/utility.h"
@@ -286,6 +287,7 @@ bool AclModelClient::Process(uint32_t input_count,
                              std::vector<NNAdapterOperandType>* output_types,
                              core::Argument* output_arguments,
                              DynamicShapeMode dynamic_shape_mode) {
+  pybind11::gil_scoped_release no_gil;
   if (!model_desc_) {
     NNADAPTER_LOG(FATAL) << "No ACL model is loaded.";
     return false;

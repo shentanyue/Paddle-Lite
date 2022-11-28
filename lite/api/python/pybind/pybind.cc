@@ -77,8 +77,22 @@ void BindLiteOpt(py::module *m) {
       .def("set_sparse_threshold", &OptBase::SetSparseThreshold)
       .def("record_model_info", &OptBase::RecordModelInfo)
       .def("set_passes_internal", &OptBase::SetPassesInternal)
-      .def("run", &OptBase::Run)
-      .def("run_optimize", &OptBase::RunOptimize)
+     //  .def("run", &OptBase::Run)
+     //  .def("run_optimize", &OptBase::RunOptimize)
+      .def("run",
+           [](OptBase &self) {
+#ifdef NNADAPTER_WITH_HUAWEI_ASCEND_NPU
+             pybind11::gil_scoped_release release;
+#endif
+             self.Run();
+           })
+      .def("run_optimize",
+           [](OptBase &self) {
+#ifdef NNADAPTER_WITH_HUAWEI_ASCEND_NPU
+             pybind11::gil_scoped_release release;
+#endif
+             self.RunOptimize();
+           })
       .def("version", &OptBase::OptVersion)
       .def("help", &OptBase::PrintHelpInfo)
       .def("executablebin_help", &OptBase::PrintExecutableBinHelpInfo)
@@ -383,7 +397,14 @@ void BindLiteCxxPredictor(py::module *m) {
       .def("get_input_names", &CxxPaddleApiImpl::GetInputNames)
       .def("get_input_by_name", &CxxPaddleApiImpl::GetInputByName)
       .def("get_output_by_name", &CxxPaddleApiImpl::GetOutputByName)
-      .def("run", &CxxPaddleApiImpl::Run)
+     //  .def("run", &CxxPaddleApiImpl::Run)
+      .def("run",
+           [](CxxPaddleApiImpl &self) {
+#ifdef NNADAPTER_WITH_HUAWEI_ASCEND_NPU
+             pybind11::gil_scoped_release release;
+#endif
+             self.Run();
+           })
       .def("get_version", &CxxPaddleApiImpl::GetVersion)
       .def("save_optimized_pb_model",
            [](CxxPaddleApiImpl &self, const std::string &output_dir) {
@@ -407,7 +428,14 @@ void BindLiteLightPredictor(py::module *m) {
       .def("get_output_names", &LightPredictorImpl::GetOutputNames)
       .def("get_input_by_name", &LightPredictorImpl::GetInputByName)
       .def("get_output_by_name", &LightPredictorImpl::GetOutputByName)
-      .def("run", &LightPredictorImpl::Run)
+     //  .def("run", &LightPredictorImpl::Run)
+      .def("run",
+           [](LightPredictorImpl &self) {
+#ifdef NNADAPTER_WITH_HUAWEI_ASCEND_NPU
+             pybind11::gil_scoped_release release;
+#endif
+             self.Run();
+           })
       .def("get_version", &LightPredictorImpl::GetVersion);
 }
 

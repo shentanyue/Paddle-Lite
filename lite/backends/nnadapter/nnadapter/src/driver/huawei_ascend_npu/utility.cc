@@ -18,6 +18,7 @@
 #include <utility>
 #include "utility/debug.h"
 #include "utility/string.h"
+#include <pybind11/pybind11.h>
 
 namespace nnadapter {
 namespace huawei_ascend_npu {
@@ -237,6 +238,7 @@ bool BuildOMModelToBuffer(
     const std::string& optional_shape_str,
     const DynamicShapeMode dynamic_shape_mode,
     AscendConfigParams* config_params) {
+  pybind11::gil_scoped_release no_gil;
   // Should initialize the GE graph builder before model building
   InitializeGraphBuilder(config_params);
   // Convert the CANN IR graph to the CANN om model
