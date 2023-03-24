@@ -1052,6 +1052,8 @@ typedef enum {
    */
   NNADAPTER_INSTANCE_NORMALIZATION,
 
+  NNADAPTER_IM2COL,
+
   /**
    * Applies Layer Normalization over a N-D input described
    * in the paper Layer Normalization: <https://arxiv.org/pdf/1607.06450v1.pdf>.

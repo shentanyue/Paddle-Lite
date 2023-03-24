@@ -567,6 +567,11 @@ NNADAPTER_EXPORT std::string Visualize(core::Model* model) {
         input_args = {"input", "shifts", "axes"};
         output_args = {"output"};
         break;
+      case NNADAPTER_IM2COL:
+        input_args = {
+            "input", "kernel_sizes", "strides", "paddings", "dilations"};
+        output_args = {"output"};
+        break;
       default:
         if (operation->type < 0) {
           input_args.resize(input_count);
@@ -725,6 +730,7 @@ NNADAPTER_EXPORT std::string OperationTypeToString(
     NNADAPTER_TYPE_TO_STRING(GROUP_NORMALIZATION);
     NNADAPTER_TYPE_TO_STRING(HARD_SIGMOID);
     NNADAPTER_TYPE_TO_STRING(HARD_SWISH);
+    NNADAPTER_TYPE_TO_STRING(IM2COL);
     NNADAPTER_TYPE_TO_STRING(INSTANCE_NORMALIZATION);
     NNADAPTER_TYPE_TO_STRING(LAYER_NORMALIZATION);
     NNADAPTER_TYPE_TO_STRING(LEAKY_RELU);

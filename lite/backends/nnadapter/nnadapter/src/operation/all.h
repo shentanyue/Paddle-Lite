@@ -134,6 +134,7 @@ REGISTER_OPERATION(HARD_SWISH,
                    PrepareHardSigmoidSwish,
                    ExecuteHardSigmoidSwish)
 REGISTER_OPERATION(EXPAND, ValidateExpand, PrepareExpand, ExecuteExpand)
+REGISTER_OPERATION(IM2COL, ValidateIm2col, PrepareIm2col, ExecuteIm2col)
 REGISTER_OPERATION(INSTANCE_NORMALIZATION,
                    ValidateInstanceNormalization,
                    PrepareInstanceNormalization,
